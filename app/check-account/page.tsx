@@ -21,14 +21,13 @@ export default function CheckAccountPage() {
     set_error(null);
     set_result(null);
 
-    try {
-      const found = await check_account_action(account_id.trim());
-      set_result(found ? "found" : "not-found");
-    } catch {
-      set_error("Something went wrong. Please try again.");
-    } finally {
-      set_checking(false);
+    const res = await check_account_action(account_id.trim());
+    if ("error" in res) {
+      set_error(res.error);
+    } else {
+      set_result(res.found ? "found" : "not-found");
     }
+    set_checking(false);
   }
 
   function reset() {

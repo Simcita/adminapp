@@ -15,14 +15,13 @@ export default function WaitlistSignupPage() {
     set_submitting(true);
     set_error(null);
 
-    try {
-      await join_waitlist_action(form_data);
+    const result = await join_waitlist_action(form_data);
+    if (result.success) {
       set_submitted(true);
-    } catch (e) {
-      set_error(e instanceof Error ? e.message : "Something went wrong. Please try again.");
-    } finally {
-      set_submitting(false);
+    } else {
+      set_error(result.message);
     }
+    set_submitting(false);
   }
 
   if (submitted) {
