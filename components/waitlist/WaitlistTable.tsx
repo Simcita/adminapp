@@ -20,6 +20,7 @@ import {
   send_single_waitlist_link_action,
 } from "@/actions/waitlist.actions";
 import type { LivestreamWaitlistEntry } from "@/lib/types";
+import { format_date } from "@/lib/format-date";
 
 const DEFAULT_SUBJECT = "Your livestream links are here";
 const DEFAULT_BODY =
@@ -224,7 +225,7 @@ export default function WaitlistTable({ entries }: WaitlistTableProps) {
                   <StatusBadge value={entry.status} />
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {new Date(entry.joinedAt).toLocaleDateString("en-US")}
+                  {format_date(entry.joinedAt)}
                 </TableCell>
                 <TableCell>
                   <Button

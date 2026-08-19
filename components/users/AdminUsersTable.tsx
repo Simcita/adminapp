@@ -22,6 +22,7 @@ import {
   toggle_admin_user_action,
 } from "@/actions/admin-users.actions";
 import type { AdminUser, AdminRole } from "@/lib/types";
+import { format_date, format_datetime } from "@/lib/format-date";
 
 interface AdminUsersTableProps {
   users: AdminUser[];
@@ -167,10 +168,10 @@ export default function AdminUsersTable({ users, current_admin_id }: AdminUsersT
                   </Badge>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString("en-US") : "Never"}
+                  {u.lastLoginAt ? format_datetime(u.lastLoginAt) : "Never"}
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {new Date(u.createdAt).toLocaleDateString("en-US")}
+                  {format_date(u.createdAt)}
                 </TableCell>
                 <TableCell>
                   <Button

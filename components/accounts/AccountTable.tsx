@@ -19,6 +19,7 @@ import {
   update_xm_account_action,
 } from "@/actions/account.actions";
 import type { XmApprovedAccount } from "@/lib/types";
+import { format_date } from "@/lib/format-date";
 
 interface AccountTableProps {
   accounts: XmApprovedAccount[];
@@ -217,7 +218,7 @@ export default function AccountTable({ accounts }: AccountTableProps) {
                     )}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {new Date(account.fetchedAt).toLocaleDateString("en-US")}
+                    {format_date(account.fetchedAt)}
                   </TableCell>
                   <TableCell>
                     <Button

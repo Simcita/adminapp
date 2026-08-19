@@ -21,6 +21,7 @@ import {
   delete_campaign_action,
 } from "@/actions/campaign.actions";
 import type { Campaign } from "@/lib/types";
+import { format_date } from "@/lib/format-date";
 
 interface CampaignTableProps {
   campaigns: Campaign[];
@@ -204,7 +205,7 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {new Date(c.createdAt).toLocaleDateString("en-US")}
+                  {format_date(c.createdAt)}
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
