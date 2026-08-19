@@ -33,10 +33,7 @@
  */
 
 import { cookies } from "next/headers";
-
-const API_BASE = (
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000"
-).replace(/\/+$/, "");
+import { backend_url } from "@/lib/backend-url";
 
 export async function server_fetch<T>(
   path: string,
@@ -45,8 +42,7 @@ export async function server_fetch<T>(
   const cookie_store = await cookies();
   const token = cookie_store.get("admin_auth_token")?.value;
 
-  const normalized_path = path.startsWith("/") ? path : `/${path}`;
-  const res = await fetch(`${API_BASE}${normalized_path}`, {
+  const res = await fetch(backend_url(path), {
     ...options,
     headers: {
       "Content-Type": "application/json",

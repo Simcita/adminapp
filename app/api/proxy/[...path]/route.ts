@@ -12,8 +12,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+import { backend_url } from "@/lib/backend-url";
 
 async function proxy_request(
   request: NextRequest,
@@ -24,9 +23,9 @@ async function proxy_request(
 
   const backend_path = "/" + params.path.join("/");
   const search = request.nextUrl.search;
-  const backend_url = `${API_BASE}${backend_path}${search}`;
+  const target_url = `${backend_url(backend_path)}${search}`;
 
-  const backend_res = await fetch(backend_url, {
+  const backend_res = await fetch(target_url, {
     method: request.method,
     headers: {
       "Content-Type": "application/json",

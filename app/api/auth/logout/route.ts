@@ -8,9 +8,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+import { backend_url } from "@/lib/backend-url";
 
 export async function POST(request: NextRequest) {
   const cookie_store = await cookies();
@@ -18,7 +16,7 @@ export async function POST(request: NextRequest) {
 
   // Best-effort backend logout — don't block on failure
   try {
-    await fetch(`${API_BASE}/admin/auth/logout`, {
+    await fetch(backend_url("/admin/auth/logout"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
