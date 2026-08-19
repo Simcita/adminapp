@@ -56,9 +56,21 @@ export async function server_fetch<T>(
   }
 
   if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
+    const body = (await res.json().catch(() => ({}))) as {
+      message?: string;
+      errors?: { path?: (string | number)[]; message: string }[];
+    };
+
+    const field_detail = Array.isArray(body.errors)
+      ? body.errors
+          .map((e) => `${(e.path ?? []).join(".") || "field"}: ${e.message}`)
+          .join("; ")
+      : undefined;
+
+    const base_message = body.message ?? `HTTP ${res.status}`;
+
     throw new Error(
-      (body as { message?: string }).message ?? `HTTP ${res.status}`
+      field_detail ? `${base_message} ${field_detail}` : base_message
     );
   }
 

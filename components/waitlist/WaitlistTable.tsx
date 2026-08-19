@@ -59,21 +59,23 @@ export default function WaitlistTable({ entries }: WaitlistTableProps) {
     }
 
     start_transition(async () => {
-      try {
-        const fd = new FormData();
-        fd.set("subject", subject);
-        fd.set("body", body);
-        const result = await send_waitlist_links_action(fd);
-        toast.success(
-          `Sent: ${result.sent}, Failed: ${result.failed}${
-            result.failedEmails.length > 0
-              ? ` (${result.failedEmails.join(", ")})`
-              : ""
-          }`
-        );
-      } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Failed.");
+      const fd = new FormData();
+      fd.set("subject", subject);
+      fd.set("body", body);
+      const result = await send_waitlist_links_action(fd);
+
+      if (!result.success) {
+        toast.error(result.message);
+        return;
       }
+
+      toast.success(
+        `Sent: ${result.sent}, Failed: ${result.failed}${
+          result.failedEmails.length > 0
+            ? ` (${result.failedEmails.join(", ")})`
+            : ""
+        }`
+      );
     });
   }
 
@@ -84,17 +86,17 @@ export default function WaitlistTable({ entries }: WaitlistTableProps) {
 
     set_sending_id(entry.id);
     start_transition(async () => {
-      try {
-        const fd = new FormData();
-        fd.set("subject", subject);
-        fd.set("body", body);
-        await send_single_waitlist_link_action(entry.id, fd);
+      const fd = new FormData();
+      fd.set("subject", subject);
+      fd.set("body", body);
+      const result = await send_single_waitlist_link_action(entry.id, fd);
+
+      if (!result.success) {
+        toast.error(result.message);
+      } else {
         toast.success(`Sent to ${entry.email}.`);
-      } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Failed.");
-      } finally {
-        set_sending_id(null);
       }
+      set_sending_id(null);
     });
   }
 
@@ -114,12 +116,12 @@ export default function WaitlistTable({ entries }: WaitlistTableProps) {
           </DialogHeader>
           <form
             action={async (fd) => {
-              try {
-                await add_waitlist_entry_action(fd);
+              const result = await add_waitlist_entry_action(fd);
+              if (result.success) {
                 set_add_open(false);
                 toast.success("Added to waitlist.");
-              } catch (e) {
-                toast.error(e instanceof Error ? e.message : "Failed.");
+              } else {
+                toast.error(result.message);
               }
             }}
             className="space-y-4 mt-2"
