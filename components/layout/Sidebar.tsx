@@ -40,6 +40,16 @@ const nav_items: NavItem[] = [
     ),
   },
   {
+    href: "/reachout",
+    label: "Reachout",
+    icon: (
+      <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75}>
+        <path d="M22 2 11 13" />
+        <path d="M22 2 15 22l-4-9-9-4 20-7z" />
+      </svg>
+    ),
+  },
+  {
     href: "/accounts",
     label: "XM Accounts",
     icon: (
@@ -103,6 +113,16 @@ const nav_items: NavItem[] = [
         <polyline points="14,2 14,8 20,8" />
         <line x1="16" y1="13" x2="8" y2="13" />
         <line x1="16" y1="17" x2="8" y2="17" />
+      </svg>
+    ),
+  },
+  {
+    href: "/emails",
+    label: "Email Center",
+    icon: (
+      <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75}>
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+        <path d="m22 7-10 5L2 7" />
       </svg>
     ),
   },

@@ -244,3 +244,19 @@ export type LivestreamWaitlistEntry = {
   joinedAt: string;
   sentAt: string | null;
 };
+
+// ------------------------------------------------------------
+// Email Center (bulk send)
+// POST /admin/emails/send-bulk
+// ------------------------------------------------------------
+
+export type BulkEmailRecipient = {
+  email: string;
+  name?: string;
+};
+
+export type BulkEmailResult = {
+  sent: number;
+  failed: number;
+  failedEmails: string[];
+};
