@@ -9,7 +9,7 @@ import {
   Select, SelectContent, SelectItem,
   SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { send_bulk_email_action } from "@/actions/email.actions";
+import { send_bulk_email_action, add_email_contact_action } from "@/actions/email.actions";
 import type {
   BulkEmailRecipient,
   NotificationTemplate,
@@ -17,16 +17,18 @@ import type {
   UserSubmission,
   XmApprovedAccount,
   LivestreamWaitlistEntry,
+  EmailContact,
 } from "@/lib/types";
 
 const MAX_RECIPIENTS = 1000;
 
-type RecipientSource = "submissions" | "accounts" | "waitlist";
+type RecipientSource = "submissions" | "accounts" | "waitlist" | "contacts";
 
 const SOURCE_LABELS: Record<RecipientSource, string> = {
   submissions: "Submissions",
   accounts: "XM Accounts",
   waitlist: "Waitlist",
+  contacts: "Contacts",
 };
 
 interface EmailComposerProps {
@@ -100,6 +102,9 @@ export default function EmailComposer({ templates }: EmailComposerProps) {
   const [recipients_raw, set_recipients_raw] = useState("");
   const [selected_template, set_selected_template] = useState("__none__");
   const [loading_source, set_loading_source] = useState<RecipientSource | null>(null);
+  const [contact_name, set_contact_name] = useState("");
+  const [contact_email, set_contact_email] = useState("");
+  const [is_adding_contact, set_is_adding_contact] = useState(false);
   const [is_pending, start_transition] = useTransition();
 
   const { recipients, skipped } = useMemo(
@@ -144,11 +149,16 @@ export default function EmailComposer({ templates }: EmailComposerProps) {
         lines = data.data
           .filter((a) => a.senderEmail)
           .map((a) => a.senderEmail as string);
-      } else {
+      } else if (source === "waitlist") {
         const data = json as PaginatedResponse<LivestreamWaitlistEntry>;
         lines = data.data
           .filter((w) => w.email)
           .map((w) => `${w.email},${w.name} ${w.surname}`.trim());
+      } else {
+        const data = json as PaginatedResponse<EmailContact>;
+        lines = data.data
+          .filter((c) => c.email)
+          .map((c) => (c.name ? `${c.email},${c.name}` : c.email));
       }
 
       if (lines.length === 0) {
@@ -167,6 +177,41 @@ export default function EmailComposer({ templates }: EmailComposerProps) {
       toast.error(e instanceof Error ? e.message : "Failed to load recipients.");
     } finally {
       set_loading_source(null);
+    }
+  }
+
+  async function handle_add_contact() {
+    const email = contact_email.trim();
+    const name = contact_name.trim();
+
+    if (!email) {
+      toast.error("Enter an email address first.");
+      return;
+    }
+
+    set_is_adding_contact(true);
+
+    try {
+      const result = await add_email_contact_action(name, email);
+
+      if (!result.success) {
+        toast.error(result.message);
+        return;
+      }
+
+      set_recipients_raw((prev) => {
+        const existing = prev.trim();
+        const line = name ? `${email},${name}` : email;
+        return existing ? `${existing}\n${line}` : line;
+      });
+
+      set_contact_name("");
+      set_contact_email("");
+      toast.success(`${email} saved to Contacts and added to this send.`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to add contact.");
+    } finally {
+      set_is_adding_contact(false);
     }
   }
 
@@ -225,6 +270,40 @@ export default function EmailComposer({ templates }: EmailComposerProps) {
             {recipients.length} recipient{recipients.length === 1 ? "" : "s"}
             {skipped > 0 ? ` · ${skipped} line${skipped === 1 ? "" : "s"} skipped (invalid email)` : ""}
           </span>
+        </div>
+
+        <div className="space-y-1">
+          <Label>Add a contact (saved to the database for reuse later)</Label>
+          <div className="flex flex-wrap gap-2">
+            <Input
+              placeholder="Name (optional)"
+              value={contact_name}
+              onChange={(e) => set_contact_name(e.target.value)}
+              className="w-44"
+            />
+            <Input
+              type="email"
+              placeholder="Email"
+              value={contact_email}
+              onChange={(e) => set_contact_email(e.target.value)}
+              className="w-64"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handle_add_contact();
+                }
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={is_adding_contact}
+              onClick={handle_add_contact}
+            >
+              {is_adding_contact ? "Adding…" : "Add contact"}
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">

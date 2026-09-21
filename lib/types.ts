@@ -260,3 +260,16 @@ export type BulkEmailResult = {
   failed: number;
   failedEmails: string[];
 };
+
+// ------------------------------------------------------------
+// Email Center contacts (persisted manual recipients)
+// Returned by GET /admin/contacts
+// ------------------------------------------------------------
+
+export type EmailContact = {
+  id: string;
+  name: string | null;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+};
